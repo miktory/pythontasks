@@ -1,0 +1,63 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report</title>
+    <style>
+    h1 { font-family: Verdana; }
+    h2 { font-family: Verdana; }
+    h3 { font-family: Verdana; }
+    table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    font-family: Verdana;
+    padding: 5px;
+    }
+* {
+  box-sizing: border-box;
+}
+
+.row {
+  margin-left:-5px;
+  margin-right:-5px;
+}
+
+.column {
+  float: left;
+  width: 50%;
+  padding-right: 50px;
+  padding-left: 50px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+</style>
+</head>
+<body>
+    <h1><center>Аналитика по зарплатам и городам для профессии {{ profession_name }}</center></h1>
+    <center><img src="{{image_path}}"/></center>
+    <h2><center>Статистика по годам</center></h2>
+    <table border="1">
+   <tr>
+    {{table1_columns}}
+       {{table1_rows}}
+   </tr>
+  </table>
+    <h2><center>Статистика по городам</center></h2>
+    <div class="row">
+        <div class="column">
+            <table border="1">
+                <tr>{{table2_columns}} {{table2_rows}}</tr>
+            </table>
+        </div>
+        <div class="column">
+            <table border="1">
+                <tr>{{table3_columns}} {{table3_rows}}</tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
