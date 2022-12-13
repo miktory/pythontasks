@@ -180,23 +180,29 @@ class Report:
                                         'table3_columns':table3_columns, 'table3_rows':table3_rows})
         pdfkit.from_string(pdf_template, 'report.pdf', configuration=config, options={"enable-local-file-access": ""})
 
+    def print_report(self, years_salary, years_count, years_salary_vac, years_count_vac, area_salary, area_count):
+        print("Динамика уровня зарплат по годам: " + str(years_salary))
+        print("Динамика количества вакансий по годам: " + str(years_count))
+        print("Динамика уровня зарплат по годам для выбранной профессии: " + str(years_salary_vac))
+        print("Динамика количества вакансий по годам для выбранной профессии: " + str(years_count_vac))
+        print("Уровень зарплат по городам (в порядке убывания): " + str(area_salary))
+        print("Доля вакансий по городам (в порядке убывания): " + str(area_count))
 
-print("Динамика уровня зарплат по годам: " + str(years_salary_dic))
-print("Динамика количества вакансий по годам: " + str(years_count_dic))
-print("Динамика уровня зарплат по годам для выбранной профессии: " + str(years_salary_vac_dic))
-print("Динамика количества вакансий по годам для выбранной профессии: " + str(years_count_vac_dic))
-print("Уровень зарплат по городам (в порядке убывания): " + str(area_salary_dic))
-print("Доля вакансий по городам (в порядке убывания): " + str(area_count_dic))
 report = Report()
-report.generate_excel(first_sheet_data,
+program_action = input('Введите данные для печати: ')
+if program_action == 'Вакансии':
+    report.print_report(years_salary_dic, years_count_dic, years_salary_vac_dic,years_count_vac_dic, area_salary_dic, area_count_dic)
+elif program_action == 'Статистика':
+    report = Report()
+    report.generate_excel(first_sheet_data,
                       ['Год', 'Средняя зарплата', 'Средняя зарплата - Программист', 'Количество вакансий',
                        'Количество вакансия - Программист'], ['Город', 'Уровень зарплат', 'Город', 'Доля вакансий'],second_sheet_data)
-report.generate_image([years_salary_dic, years_salary_vac_dic], 'программист', [years_count_dic, years_count_vac_dic]
+    report.generate_image([years_salary_dic, years_salary_vac_dic], 'программист', [years_count_dic, years_count_vac_dic]
                       , area_salary_dic, area_count_dic)
-table3_data = {}
-for i in range(0, len(area_count_dic)-1):
-    value = str('%.2f' % round(list(area_count_dic.values())[i]*100, 2)+'%')
-    table3_data[list(area_count_dic.keys())[i]] = value
-report.generate_pdf('Программист',first_table_data,['Год', 'Средняя зарплата', 'Средняя зарплата - Программист', 'Количество вакансий',
-                       'Количество вакансий - Программист'],area_salary_dic,['Город', 'Уровень зарплат'],table3_data,['Город', 'Доля вакансий'])
+    table3_data = {}
+    for i in range(0, len(area_count_dic)-1):
+        value = str('%.2f' % round(list(area_count_dic.values())[i]*100, 2)+'%')
+        table3_data[list(area_count_dic.keys())[i]] = value
+    report.generate_pdf('Программист',first_table_data,['Год', 'Средняя зарплата', 'Средняя зарплата - Программист', 'Количество вакансий',
+                        'Количество вакансий - Программист'],area_salary_dic,['Город', 'Уровень зарплат'],table3_data,['Город', 'Доля вакансий'])
 
