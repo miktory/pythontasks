@@ -6,6 +6,8 @@ import pdfkit
 from jinja2 import Environment, FileSystemLoader
 import matplotlib.pyplot as plt
 import numpy as np
+from inform import display, Error
+from vdiff import Vdiff
 
 def as_text(value):
     if value is None:

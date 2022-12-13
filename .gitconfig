@@ -1,0 +1,4 @@
+[merge]
+    tool = vdiff
+[mergetool "vdiff"]
+    cmd = vdiff_executable $LOCAL $REMOTE
