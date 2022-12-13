@@ -207,4 +207,4 @@ elif program_action == 'Статистика':
         table3_data[list(area_count_dic.keys())[i]] = value
     report.generate_pdf('Программист',first_table_data,['Год', 'Средняя зарплата', 'Средняя зарплата - Программист', 'Количество вакансий',
                         'Количество вакансий - Программист'],area_salary_dic,['Город', 'Уровень зарплат'],table3_data,['Город', 'Доля вакансий'])
-
+    print('End.')
