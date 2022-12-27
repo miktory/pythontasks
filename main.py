@@ -1,3 +1,6 @@
+import csv
+import os
+
 from openpyxl import Workbook
 from openpyxl.styles import Font, Border, Side
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
@@ -6,8 +9,7 @@ import pdfkit
 from jinja2 import Environment, FileSystemLoader
 import matplotlib.pyplot as plt
 import numpy as np
-from inform import display, Error
-from vdiff import Vdiff
+
 
 def as_text(value):
     if value is None:
@@ -15,42 +17,81 @@ def as_text(value):
     return str(value)
 
 
-years_salary_dic = {2007: 38916, 2008: 43646, 2009: 42492, 2010: 43846, 2011: 47451, 2012: 48243, 2013: 51510,
-                    2014: 50658, 2015: 52696, 2016: 62675, 2017: 60935, 2018: 58335, 2019: 69467, 2020: 73431,
-                    2021: 82690, 2022: 91795}
-years_count_dic = {2007: 2196, 2008: 17549, 2009: 17709, 2010: 29093, 2011: 36700, 2012: 44153, 2013: 59954,
-                   2014: 66837, 2015: 70039, 2016: 75145, 2017: 82823, 2018: 131701, 2019: 115086, 2020: 102243,
-                   2021: 57623, 2022: 18294}
-years_salary_vac_dic = {2007: 43770, 2008: 50412, 2009: 46699, 2010: 50570, 2011: 55770, 2012: 57960,
-                        2013: 58804, 2014: 62384, 2015: 62322, 2016: 66817, 2017: 72460, 2018: 76879,
-                        2019: 85300, 2020: 89791, 2021: 100987, 2022: 116651}
-years_count_vac_dic = {2007: 317, 2008: 2460, 2009: 2066, 2010: 3614, 2011: 4422, 2012: 4966, 2013: 5990,
-                       2014: 5492, 2015: 5375, 2016: 7219, 2017: 8105, 2018: 10062, 2019: 9016, 2020: 7113,
-                       2021: 3466, 2022: 1115}
-area_salary_dic = {'Москва': 76970, 'Санкт-Петербург': 65286, 'Новосибирск': 62254, 'Екатеринбург': 60962,
-                   'Казань': 52580, 'Краснодар': 51644, 'Челябинск': 51265, 'Самара': 50994, 'Пермь': 48089,
-                   'Нижний Новгород': 47662}
-area_count_dic = {'Москва': 0.3246, 'Санкт-Петербург': 0.1197, 'Новосибирск': 0.0271, 'Казань': 0.0237,
-                  'Нижний Новгород': 0.0232, 'Ростов-на-Дону': 0.0209, 'Екатеринбург': 0.0207,
-                  'Краснодар': 0.0185, 'Самара': 0.0143, 'Воронеж': 0.0141}
+class Vacancy:
+    currency_to_rub = {
+        "AZN": 35.68, "BYR": 23.91, "EUR": 59.90, "GEL": 21.74, "KGS": 0.76,
+        "KZT": 0.13, "RUR": 1, "UAH": 1.64, "USD": 60.66, "UZS": 0.0055,
+    }
 
-years_salary_dic = {2007: 38916, 2008: 43646, 2009: 42492, 2010: 43846, 2011: 47451, 2012: 48243, 2013: 51510,
-                    2014: 50658}
-years_count_dic = {2007: 2196, 2008: 17549, 2009: 17709, 2010: 29093, 2011: 36700, 2012: 44153, 2013: 59954,
-                   2014: 66837}
-years_salary_vac_dic = {2007: 43770, 2008: 50412, 2009: 46699, 2010: 50570, 2011: 55770, 2012: 57960, 2013: 58804,
-                        2014: 62384}
-years_count_vac_dic = {2007: 317, 2008: 2460, 2009: 2066, 2010: 3614, 2011: 4422, 2012: 4966, 2013: 5990, 2014: 5492}
-area_salary_dic = {'Москва': 57354, 'Санкт-Петербург': 46291, 'Новосибирск': 41580, 'Екатеринбург': 41091,
-                   'Казань': 37587, 'Самара': 34091, 'Нижний Новгород': 33637, 'Ярославль': 32744, 'Краснодар': 32542,
-                   'Воронеж': 29725}
-area_count_dic = {'Москва': 0.4581, 'Санкт-Петербург': 0.1415, 'Нижний Новгород': 0.0269, 'Казань': 0.0266,
-                  'Ростов-на-Дону': 0.0234, 'Новосибирск': 0.0202, 'Екатеринбург': 0.0143, 'Воронеж': 0.014,
-                  'Самара': 0.0133, 'Краснодар': 0.0131}
-first_sheet_data = [years_salary_dic, years_salary_vac_dic, years_count_dic, years_count_vac_dic]
-first_table_data = [years_salary_dic, years_salary_vac_dic, years_count_dic, years_count_vac_dic]
-second_sheet_data = [area_salary_dic,area_count_dic]
+    def __init__(self, vacancy):
+        self.name = vacancy['name']
+        self.salary_from = int(float(vacancy['salary_from']))
+        self.salary_to = int(float(vacancy['salary_to']))
+        self.salary_currency = vacancy['salary_currency']
+        self.salary_average = self.currency_to_rub[self.salary_currency] * (self.salary_from + self.salary_to) / 2
+        self.area_name = vacancy['area_name']
+        self.year = int(vacancy['published_at'][:4])
 
+class DataSet:
+    def __init__(self, filename, vacancy_name):
+        self.filename = filename
+        self.vacancy_name = vacancy_name
+
+    @staticmethod
+    def add(dict, key, number):
+        if key in dict:
+            dict[key] += number
+        else:
+            dict[key] = number
+
+    @staticmethod
+    def avg(dictionary):
+        new_dict = {}
+        for key, values in dictionary.items():
+            new_dict[key] = int(sum(values) / len(values))
+        return new_dict
+
+    def read_csv(self):
+        with open(self.filename, mode='r', encoding='utf-8-sig') as file:
+            reader = csv.reader(file)
+            header = next(reader)
+            header_length = len(header)
+            for row in reader:
+                if '' not in row and len(row) == header_length:
+                    yield dict(zip(header, row))
+
+    def get_info(self):
+        salary = {}
+        salary_of_vacancy_name = {}
+        salary_city = {}
+        count_of_vacancies = 0
+        for vacancy_dictionary in self.read_csv():
+            vacancy = Vacancy(vacancy_dictionary)
+            self.add(salary, vacancy.year, [vacancy.salary_average])
+            if vacancy.name.find(self.vacancy_name) != -1:
+                self.add(salary_of_vacancy_name, vacancy.year, [vacancy.salary_average])
+            self.add(salary_city, vacancy.area_name, [vacancy.salary_average])
+            count_of_vacancies += 1
+        years_count = dict([(key, len(value)) for key, value in salary.items()])
+        years_count_vac = dict([(key, len(value)) for key, value in salary_of_vacancy_name.items()])
+        if not salary_of_vacancy_name:
+            salary_of_vacancy_name = dict([(key, [0]) for key, value in salary.items()])
+            years_count_vac = dict([(key, 0) for key, value in years_count.items()])
+        years_salary = self.avg(salary)
+        years_salary_vac = self.avg(salary_of_vacancy_name)
+        area_salary = self.avg(salary_city)
+        stats4 = {}
+        for year, salaries in salary_city.items():
+            stats4[year] = round(len(salaries) / count_of_vacancies, 4)
+        stats4 = list(filter(lambda a: a[-1] >= 0.01, [(key, value) for key, value in stats4.items()]))
+        stats4.sort(key=lambda a: a[-1], reverse=True)
+        area_count = stats4.copy()
+        stats4 = dict(stats4)
+        area_salary = list(filter(lambda a: a[0] in list(stats4.keys()), [(key, value) for key, value in area_salary.items()]))
+        area_salary.sort(key=lambda a: a[-1], reverse=True)
+        area_salary = dict(area_salary[:10])
+        area_count = dict(area_count[:10])
+        return years_salary, years_count, years_salary_vac, years_count_vac, area_salary, area_count
 
 class Report:
     def generate_excel(self, data1, column_names, column_names2, data2):
@@ -103,7 +144,8 @@ class Report:
         auto_width([ws,ws1])
         wb.save('report.xlsx')
 
-    def generate_image(self, data1, profession_name, data2, data3, data4):
+    @staticmethod
+    def generate_image(data1, profession_name, data2, data3, data4):
         fig,axs = plt.subplots(2, 2)
         #Первый график
         width = 0.4
@@ -153,10 +195,11 @@ class Report:
         plt.show()
         fig.savefig('graph.png')
 
-    def generate_pdf(self,profession_name, data1, column_names1, data2, column_names2, data3, column_names3):
+    @staticmethod
+    def generate_pdf(profession_name, data1, column_names1, data2, column_names2, data3, column_names3):
+        config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
         env = Environment(loader=FileSystemLoader('.'))
         template = env.get_template("pdf_template.html")
-        config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
         table1_columns = ""
         table1_rows = ""
         table2_columns = ""
@@ -177,7 +220,7 @@ class Report:
             table3_columns += '<th>' + column_names3[i] + '</th>'
         for i in range(0, len(data3)):
             table3_rows += '<tr>' + f'<td><center>{list(data3.keys())[i]}</center></td>' + f'<td><center>{list(data3.values())[i]}</center></td>' + '</tr>'
-        pdf_template = template.render({'profession_name': profession_name, 'image_path':'file:///C:/Users/Матвей/PycharmProjects/statistics/graph.png',
+        pdf_template = template.render({'profession_name': profession_name, 'image_path':os.path.abspath('graph.png'),
                                         'table1_columns':table1_columns, 'table1_rows':table1_rows, 'table2_columns':table2_columns, 'table2_rows':table2_rows,
                                         'table3_columns':table3_columns, 'table3_rows':table3_rows})
         pdfkit.from_string(pdf_template, 'report.pdf', configuration=config, options={"enable-local-file-access": ""})
@@ -190,21 +233,35 @@ class Report:
         print("Уровень зарплат по городам (в порядке убывания): " + str(area_salary))
         print("Доля вакансий по городам (в порядке убывания): " + str(area_count))
 
-report = Report()
-program_action = input('Введите данные для печати: ')
-if program_action == 'Вакансии':
-    report.print_report(years_salary_dic, years_count_dic, years_salary_vac_dic,years_count_vac_dic, area_salary_dic, area_count_dic)
-elif program_action == 'Статистика':
-    report = Report()
-    report.generate_excel(first_sheet_data,
-                      ['Год', 'Средняя зарплата', 'Средняя зарплата - Программист', 'Количество вакансий',
-                       'Количество вакансия - Программист'], ['Город', 'Уровень зарплат', 'Город', 'Доля вакансий'],second_sheet_data)
-    report.generate_image([years_salary_dic, years_salary_vac_dic], 'программист', [years_count_dic, years_count_vac_dic]
-                      , area_salary_dic, area_count_dic)
-    table3_data = {}
-    for i in range(0, len(area_count_dic)-1):
-        value = str('%.2f' % round(list(area_count_dic.values())[i]*100, 2)+'%')
-        table3_data[list(area_count_dic.keys())[i]] = value
-    report.generate_pdf('Программист',first_table_data,['Год', 'Средняя зарплата', 'Средняя зарплата - Программист', 'Количество вакансий',
-                        'Количество вакансий - Программист'],area_salary_dic,['Город', 'Уровень зарплат'],table3_data,['Город', 'Доля вакансий'])
+class Program:
+    def __init__(self):
+        self.program_action = input('Введите данные для печати: ')
+        self.report = Report()
+        self.dataset = DataSet(input("Введите название файла: "), input("Введите название профессии: "))
+        self.years_salary_dic, self.years_count_dic, self.years_salary_vac_dic, self.years_count_vac_dic, self.area_salary_dic, self.area_count_dic = self.dataset.get_info()
+
+    def run(self):
+        if self.program_action == 'Вакансии':
+            self.report.print_report(self.years_salary_dic, self.years_count_dic, self.years_salary_vac_dic,
+                                     self.years_count_vac_dic, self.area_salary_dic, self.area_count_dic)
+        elif self.program_action == 'Статистика':
+            first_sheet_data = [self.years_salary_dic, self.years_salary_vac_dic, self.years_count_dic, self.years_count_vac_dic]
+            first_table_data = [self.years_salary_dic, self.years_salary_vac_dic, self.years_count_dic, self.years_count_vac_dic]
+            second_sheet_data = [self.area_salary_dic, self.area_count_dic]
+            self.report.generate_excel(first_sheet_data,
+                        ['Год', 'Средняя зарплата', 'Средняя зарплата - {0}'.format(self.dataset.vacancy_name), 'Количество вакансий',
+                        'Количество вакансий - {0}'.format(self.dataset.vacancy_name)], ['Город', 'Уровень зарплат', 'Город', 'Доля вакансий'],second_sheet_data)
+            self.report.generate_image([self.years_salary_dic, self.years_salary_vac_dic], self.dataset.vacancy_name, [self.years_count_dic, self.years_count_vac_dic]
+                        , self.area_salary_dic, self.area_count_dic)
+            table3_data = {}
+            for i in range(0, len(self.area_count_dic)-1):
+                value = str('%.2f' % round(list(self.area_count_dic.values())[i]*100, 2)+'%')
+                table3_data[list(self.area_count_dic.keys())[i]] = value
+            self.report.generate_pdf('Программист',first_table_data,['Год', 'Средняя зарплата', 'Средняя зарплата - Программист', 'Количество вакансий',
+                        'Количество вакансий - Программист'],self.area_salary_dic,['Город', 'Уровень зарплат'],table3_data,['Город', 'Доля вакансий'])
+
+
+program = Program()
+program.run()
+
 
