@@ -3,8 +3,8 @@ import os
 import pdfkit
 import matplotlib.pyplot as plt
 import numpy as np
+import pstats
 import doctest
-
 from openpyxl import Workbook
 from openpyxl.styles import Font, Border, Side
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
@@ -369,11 +369,11 @@ class Program:
             area_count_dic (dict): Словарь с долями вакансий по городам
 
     """
-    def __init__(self):
+    def __init__(self, action, filename, profession):
         """Инициализирует объект Program, присваивает переменным необходимые данные на основе пользовательского ввода."""
-        self.program_action = input('Введите данные для печати: ')
+        self.program_action = action
         self.report = Report()
-        self.dataset = DataSet(input("Введите название файла: "), input("Введите название профессии: "))
+        self.dataset = DataSet(filename, profession)
         self.years_salary_dic, self.years_count_dic, self.years_salary_vac_dic, self.years_count_vac_dic, self.area_salary_dic, self.area_count_dic = self.dataset.get_info()
 
     @staticmethod
@@ -412,9 +412,16 @@ class Program:
             self.report.generate_pdf(self.dataset.vacancy_name,first_table_data,['Год', 'Средняя зарплата', 'Средняя зарплата - {0}'.format(self.dataset.vacancy_name), 'Количество вакансий', 'Количество вакансий - {0}'.format(self.dataset.vacancy_name)],
                                      self.area_salary_dic,['Город', 'Уровень зарплат'], table3_data, ['Город', 'Доля вакансий'])
 
+    @staticmethod
+    def print_stats(len):
+        p = pstats.Stats('cprofile.log')
+        p.sort_stats('time').print_stats(len)
+
 
 if __name__ == '__main__':
-    program = Program()
+    program = Program(input("Введите данные для печати: "), input("Введите название файла: "), input("Введите название профессии: "))
     program.run()
-
+    #program = Program("Статистика","vacancies_test.csv","Аналитик")
+    #program.run()
+    #Program.print_stats(20)
 
