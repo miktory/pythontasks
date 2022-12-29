@@ -414,6 +414,11 @@ class Program:
 
     @staticmethod
     def print_stats(len):
+        """Выводит на экран лог cprofile.log.
+
+            Args:
+                len (int): Количество строк лога, которые необходимо вывести
+        """
         p = pstats.Stats('cprofile.log')
         p.sort_stats('time').print_stats(len)
 
