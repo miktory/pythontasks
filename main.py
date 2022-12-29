@@ -34,6 +34,20 @@ class Vacancy:
 
         Args:
             vacancy (dict): Словарь с информацией о вакансии
+        >>> Vacancy({'name':'Дизайнер', 'salary_to':75000 , 'salary_from':50000 , 'salary_currency':'RUR', 'area_name':'Kazan', 'published_at':'2012-03-05T07:40:09+0400'}).name
+        'Дизайнер'
+        >>> Vacancy({'name':'Дизайнер', 'salary_to':75000 , 'salary_from':50000 , 'salary_currency':'RUR', 'area_name':'Kazan', 'published_at':'2012-03-05T07:40:09+0400'}).salary_currency
+        'RUR'
+        >>> Vacancy({'name':'Дизайнер', 'salary_to':75000 , 'salary_from':50000 , 'salary_currency':'RUR', 'area_name':'Kazan', 'published_at':'2012-03-05T07:40:09+0400'}).salary_average
+        62500.0
+        >>> Vacancy({'name':'Дизайнер', 'salary_to':75000 , 'salary_from':50000 , 'salary_currency':'RUR', 'area_name':'Kazan', 'published_at':'2012-03-05T07:40:09+0400'}).year
+        2012
+        >>> Vacancy({'name':'Дизайнер', 'salary_to':75000 , 'salary_from':50000 , 'salary_currency':'RUR', 'area_name':'Kazan', 'published_at':'2012-03-05T07:40:09+0400'}).area_name
+        'Kazan'
+        >>> Vacancy({'name':'Дизайнер', 'salary_to':75000 , 'salary_from':50000 , 'salary_currency':'RUR', 'area_name':'Kazan', 'published_at':'2012-03-05T07:40:09+0400'}).salary_from
+        50000
+        >>> Vacancy({'name':'Дизайнер', 'salary_to':75000 , 'salary_from':50000 , 'salary_currency':'RUR', 'area_name':'Kazan', 'published_at':'2012-03-05T07:40:09+0400'}).salary_to
+        75000
         """
         self.name = vacancy['name']
         self.salary_to = int(float(vacancy['salary_to']))
@@ -84,6 +98,8 @@ class DataSet:
 
             Returns:
                 dict: Новый словарь
+            >>> DataSet.avg({1:[50,100],2:[100,200],3:[200,300]})
+            {1: 75, 2: 150, 3: 250}
 
         """
         new_dict = {}
@@ -397,8 +413,8 @@ class Program:
                                      self.area_salary_dic,['Город', 'Уровень зарплат'], table3_data, ['Город', 'Доля вакансий'])
 
 
-#program = Program()
-#program.run()
-doctest.testmod()
+if __name__ == '__main__':
+    program = Program()
+    program.run()
 
 
