@@ -26,5 +26,4 @@ def split_csv(filename):
                 writer.writerow(vacancy)
 
 
-split_csv('vacancies_test.csv')
 
