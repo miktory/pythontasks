@@ -1,14 +1,16 @@
 import csv
 import os
+import pdfkit
+import matplotlib.pyplot as plt
+import numpy as np
+import doctest
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, Border, Side
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
 from openpyxl.utils import get_column_letter
-import pdfkit
 from jinja2 import Environment, FileSystemLoader
-import matplotlib.pyplot as plt
-import numpy as np
+
 
 
 class Vacancy:
@@ -21,6 +23,7 @@ class Vacancy:
         salary_currency (str): Валюта оклада
         salary_average (float): Среднее значение оклада в рублях
         area_name (str): Город, в котором представлена вакансия
+        year (int): Год публикации вакансии
     """
     currency_to_rub = {
         "AZN": 35.68, "BYR": 23.91, "EUR": 59.90, "GEL": 21.74, "KGS": 0.76,
@@ -49,6 +52,12 @@ class DataSet:
             vacancy_name (str): Имя выбранной вакансии
         """
     def __init__(self, filename, vacancy_name):
+        """Инициализирует объект DataSet
+
+            Args:
+                filename (str): Название csv файла
+                vacancy_name (str): Название вакансии
+        """
         self.filename = filename
         self.vacancy_name = vacancy_name
 
@@ -357,6 +366,10 @@ class Program:
 
             Returns:
                 str: Строковое представление значения
+            >>> Program.as_text(50)
+            '50'
+            >>> Program.as_text(-5-5)
+            '-10'
         """
         if value is None:
             return ""
@@ -384,7 +397,8 @@ class Program:
                                      self.area_salary_dic,['Город', 'Уровень зарплат'], table3_data, ['Город', 'Доля вакансий'])
 
 
-program = Program()
-program.run()
+#program = Program()
+#program.run()
+doctest.testmod()
 
 
