@@ -1,5 +1,8 @@
 import csv
+import multiprocessing
 import os
+from datetime import datetime
+
 import pdfkit
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,8 +13,7 @@ from openpyxl.styles import Font, Border, Side
 from openpyxl.styles.numbers import FORMAT_PERCENTAGE_00
 from openpyxl.utils import get_column_letter
 from jinja2 import Environment, FileSystemLoader
-from datetime import datetime
-
+from multiprocessing import Process, pool
 
 
 class Vacancy:
@@ -108,14 +110,15 @@ class DataSet:
             new_dict[key] = int(sum(values) / len(values))
         return new_dict
 
-    def read_csv(self):
+    @staticmethod
+    def read_csv(filename):
         """Чтение csv и формирование словарей с информацией о вакансиях.
 
             Returns:
                 dict: Ленивый возврат словарей с информацией о вакансиях
         """
 
-        with open(self.filename, mode='r', encoding='utf-8-sig') as file:
+        with open(filename, mode='r', encoding='utf-8-sig') as file:
             reader = csv.reader(file)
             header = next(reader)
             header_length = len(header)
@@ -130,17 +133,30 @@ class DataSet:
                 (dict,dict,dict,dict,dict,dict): 1.Зарплаты по годам, 2.Количество вакансий по годам, 3.Зарплаты по годам для выбранной профессии,
                     4.Количество вакансий по годам для выбранной профессии, 5.Зарплаты по городам, 6.Доля вакансий по городам
         """
+
         salary = {}
         salary_of_vacancy_name = {}
         salary_city = {}
         count_of_vacancies = 0
-        for vacancy_dictionary in self.read_csv():
-            vacancy = Vacancy(vacancy_dictionary)
-            self.add(salary, vacancy.year, [vacancy.salary_average])
-            if vacancy.name.find(self.vacancy_name) != -1:
-                self.add(salary_of_vacancy_name, vacancy.year, [vacancy.salary_average])
-            self.add(salary_city, vacancy.area_name, [vacancy.salary_average])
-            count_of_vacancies += 1
+        results = []
+        pool = multiprocessing.Pool()
+        for entry in os.scandir('chunks'):
+            if entry.is_file() and entry.name.endswith('.csv'):
+                result = pool.apply_async(DataSet.parse_csv_multiprocessing, args=(entry.path,self.vacancy_name))
+                results.append(result)
+        for result in results:
+            first = result.get()[0]
+            second = result.get()[1]
+            third = result.get()[2]
+            fourth = result.get()[3]
+            salary.update(first)
+            salary_of_vacancy_name.update(second)
+            count_of_vacancies+=third
+            for key, value in fourth.items():
+                if key not in salary_city.keys():
+                    salary_city[key] = value
+                else:
+                    salary_city[key].extend(value)
         years_count = dict([(key, len(value)) for key, value in salary.items()])
         years_count_vac = dict([(key, len(value)) for key, value in salary_of_vacancy_name.items()])
         if not salary_of_vacancy_name:
@@ -162,6 +178,20 @@ class DataSet:
         area_count = dict(area_count[:10])
         return years_salary, years_count, years_salary_vac, years_count_vac, area_salary, area_count
 
+    @staticmethod
+    def parse_csv_multiprocessing(filename,vacancy_name):
+        salary = {}
+        salary_of_vacancy_name = {}
+        count_of_vacancies = 0
+        salary_city = {}
+        for vacancy_dictionary in DataSet.read_csv(filename):
+            vacancy = Vacancy(vacancy_dictionary)
+            DataSet.add(salary, vacancy.year, [vacancy.salary_average])
+            if vacancy.name.find(vacancy_name) != -1:
+                DataSet.add(salary_of_vacancy_name, vacancy.year, [vacancy.salary_average])
+            DataSet.add(salary_city, vacancy.area_name, [vacancy.salary_average])
+            count_of_vacancies += 1
+        return  salary,salary_of_vacancy_name,count_of_vacancies,salary_city
 
 class Report:
     """Класс для формирования excel, pdf, png и текстового отчётов."""
@@ -430,7 +460,7 @@ if __name__ == '__main__':
     #program.run()
     program = Program("Вакансии","vacancies_test.csv","Аналитик")
     program.run()
-    #Program.print_stats(20)
     end_time = datetime.now()
     print('Программа выполнилась за: ', end_time - start_time)
+    #Program.print_stats(20)
 
