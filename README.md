@@ -65,7 +65,24 @@
 ### Версия с multiprocessing (3.3 c)
 
 
-![Версия с multiprocessing](README/multiprocessing_test.jpg)
+![Версия с multiprocessing](README/multiprocessing_test.jpg)  
+
+<hr></hr>  
+
+**3.2.3**
+=====================
+Добавил версию программы с **concurrent.futures** обработкой файлов из директории chunks.
+-----------------------------------  
+В **main_concurrent.py** содержится новая версия программы.   
+С профилизатором запускаться отказалась, как и версия с **multiprocessing**, поэтому все замеры были выполнены через **datetime**.  
+Для достоверности я проводил тесты **10 раз**. Версия с **concurrent.futures** показала неоднозначные результаты.  
+Версия с **multiprocessing** всегда отрабатывала примерно за одно и то же время, в то время как версия с **concurrent.futures**  
+имеет широкий временной диапазон. Я получал результаты от 3.3 до 4 секунд. Среднее время работы (за 10 тестов): **3.5c**.  
+Это выше, чем у версии с **multiprocessing**
+### Версия программы с concurrent.futures (3.5 c)
+
+![Версия программы с concurrent.futures](README/concurrent_test.jpg)  
+
 
 
 
