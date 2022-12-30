@@ -63,5 +63,4 @@ def get_currencies(filename):
     result_csv.to_csv('currencies.csv')
     print(result_csv.head())
     print('Сохранено в файл currencies.csv')
-
-#get_currencies('vacancies_dif_currencies.csv')
+    return result_csv
