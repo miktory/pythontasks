@@ -68,7 +68,7 @@ def get_year_stats_mp():
 def get_area_stats():
     global vac_num_by_area, salary_by_area
     df = pd.concat(df_res, ignore_index=True)
-    df.head(100).to_csv('3-3-2.csv', index=False, encoding='utf8')
+    df.head(100).to_csv('3.3.2_first100.csv', index=False, encoding='utf8')
     all_vac_num = df.shape[0]
     vac_percent = int(all_vac_num * 0.01)
 
