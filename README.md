@@ -134,7 +134,7 @@
 Имортировал туда класс **report** из **main.py**. Генерируются excel, png, pdf отчёты.  
 Pdf отчёт находится в файле report.pdf.  
 
-![Пример работы скрипта](README/3.4.2.jpg)  
+![Пример работы скрипта](README/3.4.2_remake.jpg)  
 
 ![Отчёт](README/first_report_1.jpg)  
   
