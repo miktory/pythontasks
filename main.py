@@ -267,7 +267,7 @@ class Report:
         axs[0, 1].legend()
         axs[0, 1].set_title('Количество вакансий по годам', fontsize=12)
         # Третий график
-        width = 0.8
+        width = 0.4
         keys = list(data3.keys())
         for i, key in enumerate(keys):
             keys[i] = keys[i].replace(" ", '\n')
@@ -288,6 +288,7 @@ class Report:
         data4['Другие'] = share
         axs[1, 1].pie(data4.values(), labels=data4.keys(), startangle=450, textprops={'fontsize': 6})
         axs[1, 1].set_title('Доля вакансий по городам', fontsize=12)
+        axs[1, 1].axis('equal')
         # Вывод графика и сохранение в .png
         fig.tight_layout()
         plt.show()
@@ -428,10 +429,10 @@ class Program:
 
 if __name__ == '__main__':
     start_time = datetime.now()
-    #program = Program(input("Введите данные для печати: "), input("Введите название файла: "), input("Введите название профессии: "))
-    #program.run()
-    program = Program("Вакансии","vacancies_test.csv","Аналитик")
+    program = Program(input("Введите данные для печати: "), input("Введите название файла: "), input("Введите название профессии: "))
     program.run()
+    #program = Program("Вакансии","vacancies_test.csv","Аналитик")
+    #program.run()
     #Program.print_stats(20)
     end_time = datetime.now()
     print('Программа выполнилась за: ', end_time - start_time)

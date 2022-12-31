@@ -456,9 +456,9 @@ class Program:
 
 if __name__ == '__main__':
     start_time = datetime.now()
-    #program = Program(input("Введите данные для печати: "), input("Введите название файла: "), input("Введите название профессии: "))
+    program = Program(input("Введите данные для печати: "), input("Введите название файла: "), input("Введите название профессии: "))
     #program.run()
-    program = Program("Вакансии","vacancies_test.csv","Аналитик")
+    #program = Program("Вакансии","vacancies_test.csv","Аналитик")
     program.run()
     end_time = datetime.now()
     print('Программа выполнилась за: ', end_time - start_time)
