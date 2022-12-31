@@ -136,7 +136,9 @@ Pdf отчёт находится в файле report.pdf.
 
 ![Пример работы скрипта](README/3.4.2.jpg)  
 
-<hr></hr>  
+![Отчёт](README/first_report_1.jpg)  
+  
+![Отчёт](README/first_report_2.jpg)   
 
 <hr></hr>  
 
