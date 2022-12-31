@@ -286,7 +286,7 @@ class Report:
         for key in data4:
             share -= data4[key]
         data4['Другие'] = share
-        axs[1, 1].pie(data4.values(), labels=data4.keys(), startangle=450, textprops={'fontsize': 6})
+        axs[1, 1].pie(data4.values(), labels=data4.keys(), textprops={'fontsize': 6})
         axs[1, 1].set_title('Доля вакансий по городам', fontsize=12)
         axs[1, 1].axis('equal')
         # Вывод графика и сохранение в .png
