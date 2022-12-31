@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from multiprocessing import Process, Queue
 pd.options.mode.chained_assignment = None
+from main import Report
 
 dic_naming = {
     "name": "Название",
@@ -110,7 +111,33 @@ if __name__ == '__main__':
     year_by_vac_num_job = {}
     year_by_salary_job = {}
     vac_num_by_area = {}
-    user_input = UserInput(input("Введите название файла: "), input("Введите название профессии: "))
+    filename = input("Введите название файла: ")
+    profession = input("Введите название профессии: ")
+    user_input = UserInput(filename, profession)
     get_year_stats_mp()
     get_area_stats()
     print_stats()
+    first_sheet_data = [year_by_salary, year_by_salary_job, year_by_vac_num,
+                        year_by_vac_num_job]
+    first_table_data = [year_by_salary, year_by_salary_job, year_by_vac_num,
+                        year_by_vac_num_job]
+    second_sheet_data = [salary_by_area, vac_num_by_area]
+    Report.generate_excel(first_sheet_data,
+                               ['Год', 'Средняя зарплата', 'Средняя зарплата - {0}'.format(profession),
+                                'Количество вакансий',
+                                'Количество вакансий - {0}'.format(profession)],
+                               ['Город', 'Уровень зарплат', 'Город', 'Доля вакансий'], second_sheet_data)
+    Report.generate_image([year_by_salary, year_by_salary_job], profession,
+                               [year_by_vac_num, year_by_vac_num_job]
+                               , salary_by_area, vac_num_by_area)
+    table3_data = {}
+    for i in range(0, len(salary_by_area) - 1):
+        value = str('%.2f' % round(list(salary_by_area.values())[i] * 100, 2) + '%')
+        table3_data[list(salary_by_area.keys())[i]] = value
+    Report.generate_pdf(profession, first_table_data,
+                             ['Год', 'Средняя зарплата', 'Средняя зарплата - {0}'.format(profession),
+                              'Количество вакансий', 'Количество вакансий - {0}'.format(profession)],
+                             salary_by_area, ['Город', 'Уровень зарплат'], table3_data,
+                             ['Город', 'Доля вакансий'])
+    print('Отчёт сгенерирован и сохранён в report.pdf')
+

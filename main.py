@@ -304,7 +304,9 @@ class Report:
                     для выбранной вакансии
                  column_names1 (list of str): Названия столбцов первой таблицы
                  data2 (dict): Словарь с уровнями зарплат по городам
+                 column_names2 (list of str): Названия столбцов второй таблицы
                  data3 (dict): Словарь с долями зарплат по городам
+                 column_names3 (list of str): Названия столбцов третьей таблицы
         """
         config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
         env = Environment(loader=FileSystemLoader('.'))
